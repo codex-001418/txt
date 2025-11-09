@@ -1,0 +1,854 @@
+Question  1:  
+Write a C program to implement bit stuffing . 
+• You need to scan the input frame bit by 
+bit. 
+• Whenever you see five consecutive 1’s , 
+stuff (insert) a 0 immediately after them.  
+• Other bits are copied as they are.  
+ 
+#include <stdio.h>  
+ 
+void main() {  
+    int a[20], b[30], i, j = 0, k, count, n;  
+ 
+    printf("Enter frame length: ");  
+    scanf("%d", &n);  
+ 
+    printf("Enter input frame (0's and 1's 
+only): \n"); 
+    for (i = 0; i < n; i++) {  
+        scanf("%d", &a[i]);  
+    } 
+ 
+    i = 0;  
+    while (i < n) {  
+        if (a[i] == 1) {  
+            b[j++] = a[i];  
+            count = 1;  
+ 
+            for (k = i + 1; a[k] == 1 && k < n && count 
+< 5; k++) {  
+                b[j++] = a[k];  
+                count++;  
+            } 
+            if (count == 5) {  
+                b[j++] = 0; // Stuff a 0 after 5 
+consecutive 1s  
+            } 
+ 
+            i = k; // Continue from next index  
+        } else {  
+            b[j++] = a[i];  
+            i++; 
+        } 
+    } 
+ 
+    printf("After stuffing, the frame is: ");  
+    for (i = 0; i < j; i++) {          printf("%d", b[i]);  
+    } 
+    printf(" \n"); 
+} 
+ 
+• You scan the input frame bit by bit.  
+• Whenever you see five consecutive 1’s , you 
+stuff  a 0 right after them.  
+• are copied as they are.  
+ 
+Example Input:  
+Enter frame length: 13  
+Enter input frame (0's and 1's only):  
+1 1 1 1 1 1 0 1 1 1 1 1 1  
+After stuffing, the frame is: 111110101111101  
+ 
+Byte Stuffing Program (C Language)
+
+Question  2: 
+Write a C program to implement byte stuffing . 
+• Assume the input string is in CAPITAL letters 
+only . 
+• Add a starting flag character ‘F’  at the 
+beginning.  
+• If any character is E or F, prefix it with E 
+(escape character).  
+• Add an ending flag character ‘F’  at the end.  
+ 
+#include <stdio.h>  
+#include <string.h>  
+#include <ctype.h>  
+void main() {  
+    char input[100], output[200];  
+    int i = 0, j = 0;  
+    printf("Enter the input string in CAPITAL 
+letters: ");  
+    scanf("%s", input);  
+    // Validate: all capital letters  
+    for (i = 0; input[i] != ' \0'; i++) {  
+        if (!isupper(input[i])) {  
+            printf("Error: Input must be in CAPITAL 
+letters only. \n"); 
+            return;  
+        } 
+    } 
+    // Add starting frame flag 'F'  
+    output[0] = 'F';  
+    j = 1;  
+    i = 0; 
+    while (input[i] != ' \0') { 
+        // If current char is E or F, prefix with E  
+        if (input[i] == 'E' || input[i] == 'F') {  
+            output[j++] = 'E';  
+        } 
+        output[j++] = input[i];  
+        i++; 
+    } 
+    // Add ending frame flag 'F'  
+    output[j++] = 'F';  
+    output[j] = ' \0'; 
+    printf("Stuffed frame: %s \n", output);  
+} 
+This is a byte stuffing program that:  
+• Assumes input is in CAPITAL letters only.  
+• Adds a starting flag character 'F'.  
+• If any character is E or F, it prefixes it with an E 
+(escaping).  
+• Adds an ending flag character 'F'.  
+Example Input:  
+Enter the input string in CAPITAL letters: 
+ABECFD  
+Processing Steps:  
+• Input validation:  
+• All characters are uppercase .  
+• Add starting flag 'F':  
+output[0] = 'F'  
+j = 1  
+Processing each character:  
+i input[i]  Special?  Output 
+Added  j after  
+0 A No A 2 
+1 B No B 3 
+2 E Yes E 
+(escape), 
+then E  5 
+3 C No C 6 
+4 F Yes E 
+(escape), 
+then F  8 
+5 D No D 9  
+CRC Generation (Transmitter Side)
+
+Question  3: 
+Write a C program to implement CRC 
+generation  at the transmitter side.  
+• Input: Generator polynomial (binary) and 
+data frame (binary).  
+• Append (m -1) zeros to the frame (where 
+m = degree of generator polynomial).  
+• Perform binary division (XOR).  
+• Attach the remainder to the original 
+frame.  
+ 
+#include <stdio.h>  
+#include <string.h>  
+ 
+int main() {  
+    int i, j, k, m, n, cl;  
+    char a[100], b[100], c[200];  
+    printf("Enter generator polynomial (binary): 
+"); 
+    scanf("%s", a);  
+    printf( "Enter the data frame (binary): ");  
+    scanf("%s", b);  
+ 
+    m = strlen(a);  
+    n = strlen(b);  
+    // Remove leading zeros from polynomial  
+    for(i = 0; i < m; i++) {  
+        if(a[i] == '1') break;  
+    } 
+    for(k = 0; k < m - i; k++) {  
+        a[k] = a[k + i];  
+    } 
+    a[k] = ' \0'; // Null -terminate the updated 
+polynomial  
+    m = strlen(a); // Update length after 
+trimming  
+     // Copy original frame to c[]  
+    for(i = 0; i < n; i++) {  
+        c[i] = b[i];  
+    } 
+    // Append m -1 zeros to c[]  
+    for(i = n; i < n + m - 1; i++) {  
+        c[i] = '0';  
+    } 
+    c[i] = ' \0'; // Null -terminate  
+    // Perform CRC division  
+    for(i = 0; i <= strlen(c) - m; i++) {  
+        if(c[i] == '1') {  
+            for(j = 0; j < m; j++) {  
+                c[i + j] = (c[i  + j] == a[j]) ? '0' : '1'; // 
+XOR  
+            } 
+        } 
+    } 
+    // Attach original data and CRC remainder  
+    for(i = 0; i < n; i++) {  
+        c[i] = b[i]; // restore original frame  
+    } 
+    printf("The transmitted message (with CRC): 
+%s\n", c);  
+    return 0;  
+} 
+ 
+Example  : 
+Divisor : 11001  
+Dividend : 1010101010  
+Output: 10101010100010  
+ 
+CRC Checking (Receiver Side)
+
+Question  4: 
+Write a C program to implement CRC checking  
+at the receiver side.  
+• Input: Generator polynomial and 
+received CRC frame.  
+• Perform division using the same 
+polynomial.  
+• If remainder = 0, message is correct. 
+Otherwise, error exists.  
+ 
+#include <stdio.h>  
+#include <string.h>  
+ 
+int main() {  
+    int i, j, k, m, n, cl;  
+    char a[100], c[200];  
+    printf("Enter generator polynomial (binary): 
+"); 
+    scanf("%s", a);  
+    printf("Enter the CRC frame (binary): ");  
+    scanf("%s", c);  
+ 
+    m = strlen(a);  
+    cl = strlen(c);  
+    // Remove leading zeros from polynomial      for (i = 0; i < m; i++) {  
+        if (a[i] == '1') break;  
+    } 
+    // Shift polynomial to remove leading zeros  
+    for (k = 0; k < m - i; k++) {  
+        a[k] = a[k + i];  
+    } 
+    a[k] = ' \0'; 
+    m = strlen(a); // Update polynomial length  
+    n = cl - m + 1; // Division steps  
+ 
+    // Perform XOR division  
+    for (i = 0; i < n; i++) {  
+        if (c[i] == '1') {  
+            for (j = 0, k = i; j < m; j++, k++) {  
+                c[k] = (c[k] == a[j]) ? '0' : '1';  
+            } 
+        } 
+    } 
+ 
+    // Check if remainder is all zero  
+    for (i = n; i < cl; i++) {  
+        if (c[i] != '0') {  
+            printf(" \nTHERE IS SOME ERROR IN 
+MESSAGE. \n"); 
+            return 0;  
+        } 
+    } 
+ 
+    printf(" \nMESSAGE IS CORRECT. \n"); 
+    return 0;  
+} 
+ 
+Example :  
+Divisor : 11001  
+Dividend : 10101010100010  
+Output: Message is Correct!  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Dijkstra’s Algorithm (Shortest Path)
+
+Question  5: 
+Write a C program to implement Dijkstra’s 
+shortest path algorithm . 
+• Input: Number of vertices and adjacency 
+matrix ( -1 for no edge).  
+• Output: Shortest path distance and path 
+from source vertex to all vertices.  
+ 
+#include <stdio.h>  
+#define MAX 10  
+#define INF 30000  
+int main() {  
+    int u, v, num, i, j;  
+    int s[MAX], min, cost[MAX][MAX], dist[MAX], 
+path[MAX], n;  
+    printf("Enter number of vertices: ");  
+    scanf("%d", &n);  
+    printf("Enter adjacency matrix ( -1 for no 
+edge): \n"); 
+    for(i = 1; i <= n; i++) {  
+        for(j = 1; j <= n; j++) {  
+            scanf("%d", &cost[i][j]);  
+            if(i == j)  
+                cost[i][j] = 0;  
+            else if(cost[i][j] == -1) 
+                cost[i][j] = INF;  
+        } 
+    } 
+    printf("Enter source vertex (1 to %d): ", n);  
+    scanf("%d", &v);  
+    // Initialize distance, path, and visited arrays  
+    for(i = 1; i <= n; i++) {  
+        s[i] = 0;              // Not visited  
+        path[i] = v;           // Initially all paths go 
+through source  
+        dist[i] = cost[v][i];  // Distance from source  
+    } 
+    dist[v] = 0;  
+    s[v] = 1;  
+    for(num = 2; num <= n; num++) {  
+        min = INF;  
+        u = -1; 
+        // Find the unvisited vertex with the 
+smallest distance  
+        for(i = 1; i <= n; i++) {  
+            if(!s[i] && dist[i] < min) {  
+                min = dist[i];                  u = i;  
+            } 
+        } 
+        if(u == -1) break; // All reachable nodes are 
+visited  
+        s[u] = 1;  
+        // Update distances of adjacent vertices  
+        for(i = 1; i <= n; i++) {  
+            if(!s[i] && dist[i] > dist[u] + cost[u][i]) {  
+                dist[i] = dist[u] + cost[u][i];  
+                path[i] = u;  
+            } 
+        } 
+    } 
+     
+// Output path matrix  
+    printf(" \nShortest paths from source %d: \n", 
+v); 
+    printf("Node \tDistance \tPath \n"); 
+    for(i = 1; i <= n; i++) {  
+        printf("%d \t%d\t\t", i, dist[i]);  
+        j = i;  
+        printf("%d", j);  
+        while(path[j] != v) {  
+            j = path[j];  
+            printf(" < - %d", j);  
+        } 
+        printf(" < - %d\n", v);  
+    } 
+    return 0;  
+} 
+Input:  
+Enter number of vertices: 4  
+Enter adjacency matrix ( -1 for no edge):  
+0  1  -1  4 
+1  0   2  6  
+-1 2   0  3  
+4  6   3  0  
+Enter source vertex (1 to 4): 1  
+Shortest paths from source 1:   
+output :  
+Node  Distance  Path  
+1 0  1 <- 1 
+2 1  2 <- 1 
+3 3  3 <- 2 <- 1 
+4 4  4 <- 1 
+ 
+ 
+Sliding Window Protocol
+
+Question  6: 
+Write a C program to simulate sliding window 
+protocol  for flow control.  
+• Input: Window size.  
+• Frames are transmitted in windows.  
+• Acknowledgements are received and 
+retransmissions are handled.  
+ 
+#include<stdio.h>  
+int main() {  
+    int windowsize, sent = 0, ack = 0, i;  
+     
+    printf("Enter window size: ");  
+    scanf("%d", &windowsize);  
+    while(1) {  
+        // Transmitting frames  
+        for(i = 0; i < windowsize; i++) {  
+            printf("Frame %d has been 
+transmitted. \n", sent);  
+            sent++;  
+            // If all frames have been transmitted  
+            if(sent >= windowsize)  
+                break;  
+        } 
+        
+        // Asking for the last acknowledgment 
+received  
+        printf(" \nPlease enter the last 
+Acknowledgement received: ");  
+        scanf("%d", &ack);  
+        // If the acknowledgment is less than sent, 
+adjust the sent pointer  
+        if(ack < sent) {  
+            sent = ack;  
+            printf("Resending frames from Frame 
+%d.\n", sent);  
+        } 
+        // Exit if acknowledgment equals the total 
+number of sent frames  
+        if(ack == windowsize) {  
+            printf("All frames have been 
+acknowledged. \n"); 
+            break;  
+        } 
+    } 
+    return 0;  
+} Caesar Cipher (Encryption)
+
+Question  7: 
+Write a C program to implement Caesar cipher 
+encryption . 
+• Input: Message and key (1 –25). 
+• Output: Encrypted message.  
+#include <stdio.h>  
+#include <string.h>  
+void encrypt(char *message, int key) {  
+    for (int i = 0; message[i] != ' \0'; i++) {  
+        char ch = message[i];  
+        if (ch >= 'a' && ch <= 'z') {  
+            message[i] = ((ch - 'a' + key) % 26) + 'a';  
+        } else if (ch >= 'A' && ch <= 'Z') {  
+            message[i] = ((ch - 'A' + key) % 26) + 'A';  
+        } 
+    } 
+} 
+int main() {  
+    char message[100];  
+    int key;  
+    printf("Enter the message to encrypt: ");  
+    fgets(message, sizeof(message), stdin);  
+   
+    // Remove newline character from message  
+    size_t len = strlen(message);  
+    if (len > 0 && message[len - 1] == ' \n') 
+        message[len - 1] = ' \0'; 
+    printf("Enter key (1 -25): ");  
+    scanf("%d", &key);  
+    encrypt(message, key);  
+    printf( "Encrypted message: %s \n", message);  
+    return 0;  
+} 
+INPUT OR OUTPUT :  
+Enter the message to encrypt: hello   
+Enter key (1 -25): 2  
+Encrypted message: jgnnq  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Caesar Cipher (Decryption)
+
+Question  8: 
+Write a C program to implement Caesar cipher 
+decryption . 
+• Input: Encrypted message and key.  
+• Output: Decrypted original message.  
+ 
+#include <stdio.h>  
+#include <string.h>  
+ 
+void decrypt(char *message, int key) {  
+    for (int i = 0; message[i] != ' \0'; i++) {  
+        char ch = message[i];  
+        if (ch >= 'a' && ch <= 'z') {  
+            message[i] = ((ch - 'a' - key + 26) % 26) + 
+'a'; 
+        } else if (ch >= 'A' && ch <= 'Z') {  
+            message[i] = ((ch - 'A' - key + 26) % 26) + 
+'A'; 
+        } 
+    } 
+} 
+ 
+int main() {  
+    char message[100];  
+    int key;  
+ 
+    printf("Enter the message to decrypt: ");  
+    fgets(message, sizeof(message), stdin);  
+    // Remove newline character from message  
+    size_t len = strlen(message);  
+    if (len > 0 && message[len - 1] == ' \n') 
+        message[len - 1] = ' \0'; 
+ 
+    printf("Enter key (1 -25): ");  
+    scanf("%d", &key);  
+ 
+    decrypt(message, key);  
+    printf("Decrypted message: %s \n", message);  
+ 
+    return 0;  
+} 
+ 
+INPUT OR OUTPUT :  
+Enter the message to decrypt: jgnnq  
+Enter key (1 -25): 2  
+Decrypted message: hello  
+ Bubble Sort
+
+Question  9: 
+Write a C program to sort an array using Bubble 
+Sort . 
+ 
+#include <stdio.h>  
+void bubbleSort(int arr[], int n) {  
+    int i, j, temp;  
+    for (i = 0; i < n - 1; i++) {  
+        // Last i elements are already in place  
+        for (j = 0; j < n - i - 1; j++) {  
+            if (arr[j] > arr[j + 1]) {  
+                temp = arr[j];  
+                arr[j] = arr[j + 1];  
+                arr[j + 1] = temp;  
+            } 
+        } 
+    } 
+} 
+// Function to print the array  
+void printArray(int arr[], int n) {  
+    int i;  
+    for (i = 0; i < n; i++)  
+        printf("%d ", arr[i]);  
+    printf(" \n"); 
+} 
+// Main function  
+int main() {  
+    int arr[100], n, i;  
+    printf( "Enter number of elements: ");  
+    scanf("%d", &n);  
+    printf("Enter %d integers: \n", n);  
+    for (i = 0; i < n; i++)  
+        scanf("%d", &arr[i]);  
+    bubbleSort(arr, n);  
+    printf("Sorted array: \n"); 
+    printArray(arr, n);  
+    return 0;  
+} 
+INPUT OR OUTPUT  
+Enter number of elements: 5  
+Enter 5 integers:  
+64 34 25 12 22  
+Sorted array:  
+12 22 25 34 64  
+ 
+ 
+ 
+Merge Sort
+
+Question  10: 
+Write a C program to sort an array using Merge 
+Sort . 
+ 
+#include <stdio.h>  
+void merge(int arr[ ], int left, int mid, int right) {  
+    int i, j, k;  
+    int n1 = mid - left + 1;  
+    int n2 = right - mid;  
+    // Temporary arrays  
+    int L[n1], R[n2];  
+    // Copy data to temp arrays  
+    for (i = 0; i < n1; i++)  
+        L[i] = arr[left + i];  
+    for (j = 0; j < n2; j++)  
+        R[j] = arr[mid + 1 + j];  
+    // Merge the temp arrays back into arr[]  
+    i = 0; // Initial index of first subarray  
+    j = 0; // Initial index of second subarray  
+    k = left; // Initial index of merged subarray  
+while (i < n1 && j < n2) {  
+        if (L[i] <= R[j])  
+            arr[k++] = L[i++];  
+        else 
+            arr[k++] = R[j++];  
+    } 
+    // Copy remaining elements  
+    while (i < n1)  
+        arr[k++] = L[i++];  
+    while (j < n2)  
+        arr[k++] = R[j++];  
+} 
+// Recursive merge sort function  
+void mergeSort(int arr[], int left, int right) {  
+    if (left < right) {  
+        int mid = left + (right - left) / 2;  
+        // Sort first and second halves  
+        mergeSort(arr, left, mid);  
+        mergeSort(arr, mid + 1, right);  
+        // Merge the sorted halves  
+        merge(arr, left, mid, right);  
+    } 
+} 
+// Function to print the array  
+void printArray(int arr[], int size) {  
+    for (int i = 0; i < size; i++)  
+        printf("%d ", arr[i]);      printf(" \n"); 
+} 
+// Main function  
+int main() {  
+    int arr[100], n, i;  
+    printf("Enter number of elements: ");  
+    scanf("%d", &n);  
+    printf("Enter %d integers: \n", n);  
+    for (i = 0; i < n; i++)  
+        scanf("%d", &arr[i]);  
+    mergeSort(arr, 0, n - 1); 
+    printf( "Sorted array: \n"); 
+    printArray(arr, n);  
+    return 0;  
+} 
+INPUT OR OUTPUT  
+Enter number of elements: 6  
+Enter 6 integers:  
+38 27 43 3 9 82  
+Sorted array:  
+3 9 27 38 43 82  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Quick Sort
+
+Question  11: 
+Write a C program to sort an array using Quick 
+Sort . 
+ 
+#include <stdio.h>  
+void swap(int* a, int* b) {  
+    int temp = *a;  
+    *a = *b;  
+    *b = temp;  
+} 
+// Partition function with first element as pivot  
+int partition(int arr[ ], int low, int high) {  
+    int pivot = arr[low];  // First element as pivot  
+    int i = low + 1;  
+    int j = high;  
+    while (i <= j) {  
+        while (i <= high && arr[i] <= pivot) i++;  
+        while (j >= low && arr[j] > pivot) j --; 
+        if (i < j)  
+            swap(&arr[i], &arr[j]);  
+    } 
+    swap(&arr[low], &arr[j]);  // Place pivot in 
+the correct position  
+    return j;  // Return the pivot index  
+} 
+// QuickSort function  
+void quickSort(int arr[], int low, int high) {  
+    if (low < high) {  
+        int pi = partition(arr, low, high);  
+        quickSort(arr, low, pi - 1);  // Left of pivot  
+        quickSort(arr, pi + 1, high); // Right of pivot  
+    } 
+} 
+// Function to print array  
+void printArray(int arr[], int n) {  
+    for (int i = 0; i < n; i++)  
+        printf("%d ", arr[i]);  
+    printf(" \n"); 
+} 
+// Main function  
+int main() {  
+    int arr[100], n;  
+    printf("Enter number of elements: ");  
+    scanf("%d", &n);  
+    printf("Enter %d integers: \n", n);  
+    for (int i = 0; i < n; i++)          scanf("%d", &arr[i] ); 
+    quickSort(arr, 0, n - 1); 
+    printf("Sorted array: \n"); 
+    printArray(arr, n);  
+    return 0;  
+} 
+ 
+INPUT OR OUTPUT  
+Enter number of elements: 6  
+Enter 6 integers:  
+45 23 67 12 89 5  
+Sorted array:  
+5 12 23 45 67 89  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Heap  Sort
+
+Question  12: 
+Write a C program to sort an array using Heap  
+Sort . 
+ 
+#include <stdio.h>  
+ 
+// Function to heapify a subtree rooted with 
+node i  
+void heapify(int arr[], int n, int i) {  
+    int largest = i;       // Initialize largest as root  
+    int left = 2 * i + 1;  // left child index  
+    int right = 2 * i + 2; // right child index  
+ 
+    // If left child is larger than root  
+    if (left < n && arr[left] > arr[largest])  
+        largest = left;  
+ 
+    // If right child is larger than largest so far  
+    if (right < n && arr[right] > arr[largest])  
+        largest = right;  
+ 
+    // If largest is not root  
+    if (largest != i) {  
+        int temp = arr[i];  
+        arr[i] = arr[largest];  
+        arr[largest] = temp;  
+ 
+        // Recursively heapify  the affected subtree  
+        heapify(arr, n, largest);  
+    } 
+} 
+ 
+// Main function to do heap sort  
+void heapSort(int arr[], int n) {  
+    // Build heap (rearrange array)  
+    for (int i = n / 2 - 1; i >= 0; i --) 
+        heapify(arr, n, i);  
+ 
+    // One by one extract elements from heap  
+    for (int i = n - 1; i > 0; i --) { 
+        // Move current root to end  
+        int temp = arr[0];  
+        arr[0] = arr[i];  
+        arr[i] = temp;  
+ 
+        // Call max heapify on the reduced heap          heapify(arr, i, 0);  
+    } 
+} 
+ 
+// Utility function to print array  
+void printArray(int arr[], int n) {  
+    for (int i = 0; i < n; i++)  
+        printf("%d ", arr[i]);  
+    printf(" \n"); 
+} 
+ 
+// Driver program  
+int main() {  
+    int n;  
+    printf( "Enter number of elements: ");  
+    scanf("%d", &n);  
+ 
+    int arr[n];  // create array of size n  
+ 
+    printf("Enter %d elements: \n", n);  
+    for (int i = 0; i < n; i++) {  
+        scanf("%d", &arr[i]);  
+    } 
+ 
+    printf("Original array: ");  
+    printArray(arr, n);  
+ 
+    heapSort(arr, n);  
+ 
+    printf("Sorted array:   ");  
+    printArray(arr, n);  
+ 
+    return 0;  
+} 
+ 
+INPUT OR OUTPUT  
+Enter number of elements:  6 
+Enter 6 elements:  
+45 23 67 12 89 5  
+Original array:  
+45 23 67 12 89 5  
+Sorted array:  
+5 12 23 45 67 89
+
